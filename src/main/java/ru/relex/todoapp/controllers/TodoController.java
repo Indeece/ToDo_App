@@ -82,6 +82,22 @@ public class TodoController implements CommandLineRunner {
         return "redirect:/";
     }
 
+    @GetMapping("/sortByColor")
+    public String sortByColor(Model model) {
+        List<TodoItem> sortedTodos = todoItemRepository.findAllByOrderByColorAsc();
+        model.addAttribute("allTodos", sortedTodos);
+        model.addAttribute("newTodo", new TodoItem());
+        return "index";
+    }
+
+    @GetMapping("/sortByStatus")
+    public String sortByStatus(Model model) {
+        List<TodoItem> sortedTodos = todoItemRepository.findAllByOrderByStatusAsc();
+        model.addAttribute("allTodos", sortedTodos);
+        model.addAttribute("newTodo", new TodoItem());
+        return "index";
+    }
+
     @Override
     public void run(String... args) throws Exception {
 

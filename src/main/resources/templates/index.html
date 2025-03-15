@@ -68,6 +68,7 @@
     </style>
 </head>
 <body>
+
 <div class="container mt-5">
     <h1 class="text-center">ToDo</h1>
     <form th:action="@{/add}" th:object="${newTodo}" method="post" class="mb-3">
@@ -135,6 +136,11 @@
             <div class="me-3 mb-2"><span class="color-box" style="background-color: #1abc9c;"></span> Здоровье</div>
             <div class="me-3 mb-2"><span class="color-box" style="background-color: #f39c12;"></span> Покупки</div>
         </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <a href="/sortByColor" class="btn btn-secondary btn-sm">Сортировать по цвету</a>
+        <a href="/sortByStatus" class="btn btn-secondary btn-sm">Сортировать по статусу</a>
     </div>
 
     <div th:if="${#lists.isEmpty(allTodos)}" class="alert alert-info">
