@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.relex.todoapp.enums.Status;
 import ru.relex.todoapp.model.TodoItem;
 import ru.relex.todoapp.repositories.TodoItemRepository;
 
@@ -65,9 +66,24 @@ public class TodoController implements CommandLineRunner {
         return "index";
     }
 
+    @PostMapping("/updateStatus/{id}")
+    public String updateStatus(@PathVariable Long id, @RequestParam("status") Status status) {
+        TodoItem todoItem = todoItemRepository.findById(id).orElseThrow();
+        todoItem.setStatus(status);
+        todoItemRepository.save(todoItem);
+        return "redirect:/";
+    }
+
+    @PostMapping("/updateColor/{id}")
+    public String updateColor(@PathVariable Long id, @RequestParam("color") String color) {
+        TodoItem todoItem = todoItemRepository.findById(id).orElseThrow();
+        todoItem.setColor(color);
+        todoItemRepository.save(todoItem);
+        return "redirect:/";
+    }
+
     @Override
     public void run(String... args) throws Exception {
-        todoItemRepository.save(new TodoItem("Item 1"));
-        todoItemRepository.save(new TodoItem("Item 2"));
+
     }
 }

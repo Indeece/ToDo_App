@@ -8,13 +8,106 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            display: inline-block;
+            cursor: pointer;
+            margin-right: 8px;
+        }
 
+        .color-picker {
+            display: none;
+            position: fixed; /* Изменено с absolute на fixed */
+            z-index: 1050; /* Увеличен z-index, чтобы перекрывать другие элементы */
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            margin: 4px;
+            display: inline-block;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            transition: transform 0.1s ease;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+
+        .color-dropdown {
+            width: auto;
+            background-color: #fff;
+            border-right: 1px solid #ced4da;
+        }
+
+        .color-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.25rem 1rem;
+        }
+
+        .color-label {
+            margin-left: 10px;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
     <h1 class="text-center">ToDo</h1>
     <form th:action="@{/add}" th:object="${newTodo}" method="post" class="mb-3">
         <div class="input-group">
+            <div class="dropdown">
+                <button class="btn dropdown-toggle color-dropdown" type="button" id="colorDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="color-box" style="background-color: #808080;" id="selectedColorBox"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="colorDropdownButton">
+                    <li><a class="dropdown-item" href="#" onclick="selectNewTaskColor('#3498db', 'Работа по дому')">
+                        <span class="color-box" style="background-color: #3498db;"></span>
+                        <span class="color-label">Работа по дому</span>
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="selectNewTaskColor('#f1c40f', 'Учеба')">
+                        <span class="color-box" style="background-color: #f1c40f;"></span>
+                        <span class="color-label">Учеба</span>
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="selectNewTaskColor('#e74c3c', 'Срочное')">
+                        <span class="color-box" style="background-color: #e74c3c;"></span>
+                        <span class="color-label">Срочное</span>
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="selectNewTaskColor('#2ecc71', 'Хобби')">
+                        <span class="color-box" style="background-color: #2ecc71;"></span>
+                        <span class="color-label">Хобби</span>
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="selectNewTaskColor('#9b59b6', 'Личное')">
+                        <span class="color-box" style="background-color: #9b59b6;"></span>
+                        <span class="color-label">Личное</span>
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="selectNewTaskColor('#1abc9c', 'Здоровье')">
+                        <span class="color-box" style="background-color: #1abc9c;"></span>
+                        <span class="color-label">Здоровье</span>
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="selectNewTaskColor('#f39c12', 'Покупки')">
+                        <span class="color-box" style="background-color: #f39c12;"></span>
+                        <span class="color-label">Покупки</span>
+                    </a></li>
+                </ul>
+            </div>
+            <input type="hidden" id="colorInput" th:field="*{color}" value="#808080">
             <input type="text" class="form-control" th:field="*{title}" placeholder="Enter the task...">
             <button class="btn btn-primary" type="submit">Add</button>
         </div>
@@ -31,14 +124,146 @@
         </div>
     </form>
 
+    <div class="mb-3">
+        <p><strong>Цветовые категории:</strong></p>
+        <div class="d-flex flex-wrap">
+            <div class="me-3 mb-2"><span class="color-box" style="background-color: #3498db;"></span> Работа по дому</div>
+            <div class="me-3 mb-2"><span class="color-box" style="background-color: #f1c40f;"></span> Учеба</div>
+            <div class="me-3 mb-2"><span class="color-box" style="background-color: #e74c3c;"></span> Срочное</div>
+            <div class="me-3 mb-2"><span class="color-box" style="background-color: #2ecc71;"></span> Хобби</div>
+            <div class="me-3 mb-2"><span class="color-box" style="background-color: #9b59b6;"></span> Работа</div>
+            <div class="me-3 mb-2"><span class="color-box" style="background-color: #1abc9c;"></span> Здоровье</div>
+            <div class="me-3 mb-2"><span class="color-box" style="background-color: #f39c12;"></span> Покупки</div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(allTodos)}" class="alert alert-info">
+        No tasks found. Add a new task above.
+    </div>
+
     <ul class="list-group">
         <li th:each="item : ${allTodos}" class="list-group-item d-flex justify-content-between align-items-center">
-            <span th:text="${item.title}"></span>
-            <form th:action="@{/delete/{id}(id=${item.id})}" method="post">
-                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-            </form>
+            <div class="d-flex align-items-center">
+                <div class="color-box me-2" th:style="'background-color:' + ${item.color}"
+                     th:attr="data-id=${item.id}" onclick="toggleColorPicker(this)"></div>
+                <span th:text="${item.title}"></span>
+                <div th:id="'color-picker-' + ${item.id}" class="color-picker">
+                    <div class="color-option" style="background-color: #3498db;" th:attr="data-id=${item.id},data-color='#3498db'" onclick="updateColor(this)"></div>
+                    <div class="color-option" style="background-color: #f1c40f;" th:attr="data-id=${item.id},data-color='#f1c40f'" onclick="updateColor(this)"></div>
+                    <div class="color-option" style="background-color: #e74c3c;" th:attr="data-id=${item.id},data-color='#e74c3c'" onclick="updateColor(this)"></div>
+                    <div class="color-option" style="background-color: #2ecc71;" th:attr="data-id=${item.id},data-color='#2ecc71'" onclick="updateColor(this)"></div>
+                    <div class="color-option" style="background-color: #9b59b6;" th:attr="data-id=${item.id},data-color='#9b59b6'" onclick="updateColor(this)"></div>
+                    <div class="color-option" style="background-color: #1abc9c;" th:attr="data-id=${item.id},data-color='#1abc9c'" onclick="updateColor(this)"></div>
+                    <div class="color-option" style="background-color: #f39c12;" th:attr="data-id=${item.id},data-color='#f39c12'" onclick="updateColor(this)"></div>
+                    <div class="color-option" style="background-color: #808080;" th:attr="data-id=${item.id},data-color='#808080'" onclick="updateColor(this)"></div>
+                </div>
+            </div>
+            <div class="d-flex">
+                <form th:action="@{/updateStatus/{id}(id=${item.id})}" method="post" class="me-2">
+                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="NOT_STARTED" th:selected="${item.status.name() == 'NOT_STARTED'}">Не начато</option>
+                        <option value="IN_PROGRESS" th:selected="${item.status.name() == 'IN_PROGRESS'}">В процессе</option>
+                        <option value="COMPLETED" th:selected="${item.status.name() == 'COMPLETED'}">Завершено</option>
+                    </select>
+                </form>
+                <form th:action="@{/delete/{id}(id=${item.id})}" method="post">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </div>
         </li>
     </ul>
+
+    <!-- Скрытая форма для отправки цвета -->
+    <form id="colorForm" method="post" style="display: none;">
+        <input type="hidden" id="colorFormInput" name="color">
+    </form>
 </div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Закрываем все цветовые пикеры при клике на документ
+    document.addEventListener('DOMContentLoaded', function() {
+        // Закрываем все цветовые пикеры при загрузке страницы
+        const pickers = document.querySelectorAll('.color-picker');
+        pickers.forEach(picker => {
+            picker.style.display = 'none';
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        const pickers = document.querySelectorAll('.color-picker');
+        pickers.forEach(picker => {
+            if (!picker.contains(e.target) && !e.target.classList.contains('color-box')) {
+                picker.style.display = 'none';
+            }
+        });
+    });
+
+    function toggleColorPicker(element) {
+        event.stopPropagation();
+        const id = element.getAttribute('data-id');
+        const picker = document.getElementById('color-picker-' + id);
+
+        // Закрываем все другие пикеры
+        const pickers = document.querySelectorAll('.color-picker');
+        pickers.forEach(p => {
+            if (p !== picker) {
+                p.style.display = 'none';
+            }
+        });
+
+        // Показываем или скрываем текущий пикер
+        if (picker.style.display === 'block') {
+            picker.style.display = 'none';
+        } else {
+            picker.style.display = 'block';
+
+            // Получаем размеры и положение
+            const rect = element.getBoundingClientRect();
+            const pickerHeight = picker.offsetHeight;
+            const windowHeight = window.innerHeight;
+
+            // Проверяем, поместится ли пикер снизу
+            if (rect.bottom + pickerHeight > windowHeight) {
+                // Недостаточно места снизу, показываем сверху элемента
+                picker.style.top = (rect.top + window.scrollY - pickerHeight - 5) + 'px';
+            } else {
+                // Достаточно места снизу
+                picker.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+            }
+
+            // Проверяем, не выходит ли за правый край экрана
+            const pickerWidth = picker.offsetWidth;
+            const windowWidth = window.innerWidth;
+
+            if (rect.left + pickerWidth > windowWidth) {
+                // Смещаем влево, чтобы вместить
+                picker.style.left = (windowWidth - pickerWidth - 10 + window.scrollX) + 'px';
+            } else {
+                picker.style.left = (rect.left + window.scrollX) + 'px';
+            }
+        }
+    }
+
+    function updateColor(element) {
+        const id = element.getAttribute('data-id');
+        const color = element.getAttribute('data-color');
+
+        // Устанавливаем значение и отправляем форму
+        const form = document.getElementById('colorForm');
+        const input = document.getElementById('colorFormInput');
+
+        form.action = '/updateColor/' + id;
+        input.value = color;
+        form.submit();
+    }
+
+    function selectNewTaskColor(color, label) {
+        document.getElementById('selectedColorBox').style.backgroundColor = color;
+        document.getElementById('colorInput').value = color;
+        return false;
+    }
+</script>
 </body>
 </html>
